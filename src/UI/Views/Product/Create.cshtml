@@ -1,0 +1,203 @@
+﻿@model UMApplication.Application.Products.Commands.UpsertProduct.UpsertProductCommand;
+
+@using (Html.BeginForm("Create", "Product", FormMethod.Post, new { @class = "form-horizontal", role = "form", id = "frmCreateProduct" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-9">
+            <h2>Input/Edit Produk</h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Home")">Home</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Product")">Produk</a>
+                </li>
+                <li class="active breadcrumb-item">
+                    <strong>Input/Edit Produk</strong>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox ">
+
+                    @Html.HiddenFor(model => model.Id)
+
+                    <div class="ibox-content">
+                        <div class="form-group row">
+                            <div class="control-label col-md-2">
+                                Nama Produk
+                            </div>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.Deskripsi)
+                            </div>
+                        </div>
+                        @*<div class="form-group row">
+                            <div class="control-label col-md-2">
+                                PLU
+                            </div>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.PLU)
+                            </div>
+                        </div>*@
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.Barcode, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.Barcode)
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.Hpp, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.Hpp)
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="control-label col-md-2">
+                                Ppn (dalam %)
+                            </div>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.Ppn)
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="control-label col-md-2">
+                                Margin
+                            </div>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.Margin)
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="control-label col-md-2">
+                                Harga Jual
+                            </div>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.HargaJual)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Index", "Product")'">Cancel</button>
+                                <input type="submit" value="Save" class="btn btn-primary" />
+
+                                <div>@ViewBag.Message</div>
+                                <div class="text-danger">@ViewBag.ErrorMessage</div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal validation -->
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="errorModalLabel">Message</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="color: dodgerblue; text-align: center;" id="rentMember-info-content">
+                    <ul>
+                    </ul>
+                </div>
+                <div style="color: red; text-align: left;" id="rentMember-error-content">
+                    <ul>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+    <script src="~/js/Application/Member/MemberCreate.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if ("@TempData["Error"]" == '') {
+            }
+            else {
+                displayErrorMessage("@TempData["Error"]");
+            }
+
+            if ("@TempData["Message"]" == '') {
+            }
+            else {
+                displayInfoMessage("@TempData["Message"]");
+            }
+
+            $("#Hpp").keyup(function () {
+                CalculateSellPrice();
+            });
+
+            $("#Ppn").keyup(function () {
+                CalculateSellPrice();
+            });
+
+            $("#Margin").keyup(function () {
+                CalculateSellPrice();
+            });
+
+            $('#frmCreateProduct').on('keyup keypress', function (e) {
+                var keyCode = e.keyCode || e.which;
+                if (keyCode === 13) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+
+            $("#Barcode").off('keyup').on('keyup', function (e) {
+                if (e.which === 13) {
+                    console.log("triggered");
+                    e.preventDefault();
+                    $(this).next('input').focus();
+                }
+            });
+        });
+
+
+
+        function CalculateSellPrice() {
+            var hpp = $('#Hpp').val().trim();
+            var ppn = $('#Ppn').val().trim();
+            var margin = $('#Margin').val().trim();
+
+            if (hpp == '')
+                hpp = 0;
+
+            if (ppn == '')
+                ppn = 0;
+
+            if (margin == '')
+                margin = 0;
+
+            var ppnValue = ppn / 100;
+            console.log(ppn);
+            console.log(ppnValue);
+
+            var sellPrice = parseInt(hpp) + (parseInt(hpp) * (ppn / 100)) + parseInt(margin);
+            $('#HargaJual').val(sellPrice);
+        }
+
+    </script>
+
+}

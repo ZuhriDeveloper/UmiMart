@@ -1,0 +1,476 @@
+﻿@model UMApplication.UI.Models.SalesOrderViewModel;
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-9">
+        <h2>Buat atau Ubah Pemesanan Barang</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Home" )">Home</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "SalesOrder" )">Daftar Pemesanan Barang</a>
+            </li>
+            <li class="active breadcrumb-item">
+                <strong>Buat atau Ubah Pemesanan Barang</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox ">
+                <div class="ibox-content">
+                    <div class="form-group row">
+                        <label class="control-label col-md-3" for="SalesOrderNumber">Nomor Pemesanan Barang</label>
+                        <div class="col-md-3">
+                            @Html.EditorFor(model => model.SalesOrderNumber)
+                        </div>
+
+                        <label class="control-label col-md-3">
+                            Supplier
+                        </label>
+                        <div class="col-md-3">
+                            <select id="ddlSupplier" asp-items="@(new SelectList(string.Empty))"></select>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group row">
+
+
+                        <label class="control-label col-md-3" for="dtmJatuhTempo">Tanggal Pemesanan (dd-mm-yyyy)</label>
+                        <div class="col-md-3">
+                            <input type="text" id="dtmSo" />
+                        </div>
+
+                        <label class="control-label col-md-3" for="dtmJatuhTempo">Tanggal Jatuh Tempo (dd-mm-yyyy)</label>
+                        <div class="col-md-3">
+                            <input type="text" id="dtmJatuhTempo" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-12">
+            <div class="ibox ">
+                <div class="ibox-content">
+
+
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">
+                            Product
+                        </label>
+                        <div class="col-md-9">
+                            <select id="ddlProduct" asp-items="@(new SelectList(string.Empty))"></select>
+                        </div>
+
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">
+                            Harga Beli Satuan
+                        </label>
+                        <div class="col-md-3">
+                            <input type="text" id="txtUnitPrice" />
+                        </div>
+
+                        <label class="control-label col-md-3">
+                            Jumlah Barang
+                        </label>
+                        <div class="col-md-2">
+                            <input type="text" id="txtQty" />
+                        </div>
+
+                        <div class="col-md-1">
+                            <input type="button" id="btnAdd" value="Add" />
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="col-lg-12">
+            <div class="ibox ">
+                <div class="ibox-content">
+
+                    <div id="orderItems">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-lg-12">
+            <div class="ibox ">
+                <div class="ibox-content">
+
+                    <div class="form-group row">
+                        @Html.LabelFor(model => model.GrandTotal, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-2 text-right">
+                            @Html.TextBoxFor(model => model.GrandTotal, new { @class = "text-right", @readonly = "readonly" })
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <input id="submit" type="button" value="Simpan" class="btn btn-primary" />
+                            <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Index", "SalesOrder" )'">Kembali</button>
+                            <div>@ViewBag.Message</div>
+                            <div class="text-danger">@ViewBag.ErrorMessage</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+@section Styles {
+    <environment names="Development,Staging,Production">
+        <link rel="stylesheet" href="~/lib/dataTables/datatables.min.css" />
+    </environment>
+}
+
+
+@section Scripts {
+
+    <environment names="Development,Staging,Production">
+        <script src="~/lib/jquery-ui/jquery-ui.js"></script>
+        <link rel="stylesheet" href="~/lib/jquery-ui/themes/base/jquery-ui.css">
+        <script src="~/lib/dataTables/datatables.min.js"></script>
+        <script src="~/lib/dataTables/dataTables.bootstrap4.min.js"></script>
+    </environment>
+
+    <script type="text/javascript">
+        var orderItems = [];
+
+        $(function () {
+
+            $('#dtmSo').datepicker({
+                dateFormat: 'dd-mm-yy'
+            });
+
+            $('#dtmJatuhTempo').datepicker({
+                dateFormat: 'dd-mm-yy'
+            });
+        });
+
+        $(document).ready(function () {
+            if ("@TempData["Error"]" == '') {
+            }
+            else {
+                displayErrorMessage("@TempData["Error"]");
+            }
+
+            if ("@TempData["Message"]" == '') {
+            }
+            else {
+                displayInfoMessage("@TempData["Message"]");
+            }
+
+            FillSupplierDdl();
+            FillProductDdl();
+
+            console.log("@Model.SalesOrderId");
+
+            if ("@Model.SalesOrderId" != "0") {
+                MappingFromDataToUi()
+            }
+
+        });
+
+        function MappingFromDataToUi() {
+            console.log("Mapping Start");
+            var daySo = String("@Model.SalesOrderDate.Day").padStart(2, '0');
+            var monthSo = String("@Model.SalesOrderDate.Month").padStart(2, '0');
+            var yearSo = String("@Model.SalesOrderDate.Year");
+            var dateSo = daySo + '-' + monthSo + '-' + yearSo;
+            $('#dtmSo').val(dateSo);
+
+            var dayDue = String("@Model.SalesOrderDueDate.Day").padStart(2, '0');
+            var monthDue = String("@Model.SalesOrderDueDate.Month").padStart(2, '0');
+            var yearDue = String("@Model.SalesOrderDueDate.Year");
+            var dateDue = dayDue + '-' + monthDue + '-' + yearDue;
+            $('#dtmJatuhTempo').val(dateDue);
+
+               var baseurl = '@Context.Request.Scheme' + "://" + '@Context.Request.Host';
+               var url = baseurl + "/api/SalesOrderApi/GetListItems/" + "@Model.SalesOrderId";
+
+            $.getJSON(url, null, function (data) {
+                     $.each(data, function () {
+                         var p = this;
+                         $.each(p, function () {
+                    
+                             //items += "<option value='" + this.id + "'>" + this.nama + "</option>";
+                             orderItems.push({
+                                 ProductName: this.product.name,
+                                 ProductId: this.productId,
+                                 Quantity: parseInt(this.quantity),
+                                 UnitPrice: parseInt(this.unitPrice),
+                                 Subtotal: parseInt(this.quantity) * parseInt(this.unitPrice)
+                             });
+                             console.log(orderItems);
+                            
+                         });
+                         GeneratedItemsTable();
+                         calculateItems();
+                      });
+                    });
+           
+
+
+            //Clear fields
+
+  
+
+            $('#GrandTotal').val(addCommas("@Model.GrandTotal"));
+        }
+
+
+        function selectElement(id, valueToSelect) {
+            let element = document.getElementById(id);
+            element.value = valueToSelect;
+        }
+
+          function FillSupplierDdl() {
+
+        var defaultItem = "<option value='0'>Silahkan pilih</option>";
+        var baseurl = '@Context.Request.Scheme' + "://" + '@Context.Request.Host';
+
+
+        var url = baseurl + "/api/SupplierApi/";
+
+         $.getJSON(url,null, function (data) {
+             var items = defaultItem;
+             $('#ddlSupplier').html(defaultItem);
+             $.each(data, function () {
+                 var p = this;
+                 $.each(p, function () {
+                     items += "<option value='" + this.id + "'>" + this.nama + "</option>";
+                 });
+              });
+             $("#ddlSupplier").html(items);
+
+               if ("@Model.SupplierId" != 0) {
+                   $('#ddlSupplier').val("@Model.SupplierId");
+            }
+            });
+        }
+
+          function FillProductDdl() {
+
+        var defaultItem = "<option value='0'>Silahkan pilih</option>";
+        var baseurl = '@Context.Request.Scheme' + "://" + '@Context.Request.Host';
+
+
+        var url = baseurl + "/api/ProductApi/GetAll";
+
+         $.getJSON(url,null, function (data) {
+             var items = defaultItem;
+             $('#ddlProduct').html(defaultItem);
+             $.each(data, function () {
+                 var p = this;
+                 $.each(p, function () {
+                     items += "<option value='" + this.id + "'>" + this.deskripsi + "</option>";
+                 });
+              });
+             $("#ddlProduct").html(items);
+
+
+
+            });
+        }
+
+
+        $('#btnAdd').click(function () {
+            //Check validation of order item
+            var isValidItem = true;
+            if ($('#ddlProduct').val().trim() == '0') {
+                isValidItem = false;
+                alert('Product harus dipilih');
+            }
+
+            else if ($('#txtUnitPrice').val().trim() == '') {
+                isValidItem = false;
+                alert('Harga satuan harus diisi');
+            }
+
+            else if ($('#txtQty').val().trim() == '') {
+                isValidItem = false;
+                alert('Jumlah barang harus diisi');
+            }
+
+            else if ($('#txtQty').val().trim() < 1) {
+                isValidItem = false;
+                alert('Jumlah barang minimal 1');
+            }
+
+            if (isValidItem) {
+                orderItems.push({
+                    ProductName: $('#ddlProduct option:selected').text().trim(),
+                    ProductId: $('#ddlProduct').val().trim(),
+                    Quantity: parseInt($('#txtQty').val().trim()),
+                    UnitPrice: parseInt($('#txtUnitPrice').val().trim()),
+                    Subtotal: parseInt($('#txtQty').val().trim()) * parseInt($('#txtUnitPrice').val().trim())
+                });
+
+                //Clear fields
+                $('#ddlProduct').val('0').focus();
+                $('#txtQty').val('');
+                $('#txtUnitPrice').val('');
+
+                GeneratedItemsTable();
+                calculateItems();
+            }
+        });
+
+        function GeneratedItemsTable() {
+            if (orderItems.length > 0) {
+                var $table = $('<table id="orderTable" class="table table-striped table-bordered table-hover dataTables-example" />');
+                $table.append('<thead><tr><th>Product</th><th>Harga Beli Satuan</th><th>Jumlah Barang</th><th>Subtotal</th><th></th></tr></thead>');
+                var $tbody = $('<tbody/>');
+                var total = 0;
+
+                $.each(orderItems, function (i, val) {
+
+                    var $row = $('<tr/>');
+                    $row.append($('<td/>').html(val.ProductName));
+                    $row.append($('<td/>').html(addCommas(val.UnitPrice)));
+                    $row.append($('<td/>').html(val.Quantity));
+                    $row.append($('<td/>').html(addCommas(val.Subtotal)));
+
+                    $row.append('<td><i class="btn btn-danger fa fa-trash fa-4x" onclick="delRow(' + i + ');"/></td>')
+                    $tbody.append($row);
+                });
+                $table.append($tbody);
+                $('#orderItems').html($table);
+            }
+        }
+
+        $('#orderTable').DataTable({
+            autoWidth: true,
+            pageLength: 25,
+            dom: '<"html5buttons"B>lTfgitp'
+        });
+
+        function delRow(i) {
+
+            if (orderItems.length > 1) {
+                orderItems.splice(i, 1);
+                document.getElementById("orderTable").deleteRow(i + 1);
+            }
+            else {
+                orderItems = [];
+                document.getElementById("orderTable").deleteRow(i);
+                document.getElementById("orderTable").deleteRow(i);
+            }
+            calculateItems();
+        }
+
+        function calculateItems() {
+            var decTotal = 0;
+            if (orderItems.length > 0) {
+                $.each(orderItems, function (i, val) {
+                    decTotal += val.Subtotal;
+                });
+
+                $('#GrandTotal').val(addCommas(decTotal));
+
+            }
+        }
+
+        $('#txtQty').keypress(function () {
+            return onlyNumbers(event);
+        });
+
+        $('#txtUnitPrice').keypress(function () {
+            return onlyNumbers(event);
+        });
+
+        $('#submit').click(function () {
+            var SoNumber = $('#SalesOrderNumber').val().trim();
+            var SalesOrderDate = toDate($('#dtmSo').val().trim());
+            var DueDate = toDate($('#dtmJatuhTempo').val().trim());
+            var Supplier = $('#ddlSupplier').val();
+
+            if (SoNumber == '') {
+                alert('Nomor Sales Order harus diisi');
+                return;
+            }
+
+            if (Supplier == "0") {
+                alert('Supplier harus dipilih');
+                return;
+            }
+
+            if (!isValidDate(SalesOrderDate)) {
+                alert('Format tanggal order salah');
+                return;
+            }
+
+            if (!isValidDate(DueDate)) {
+                alert('Format tanggal jatuh tempo salah');
+                return;
+            }
+
+
+            if (DueDate < SalesOrderDate) {
+                alert('Tanggal jatuh tempo harus lebih besar dari tanggal order');
+                return;
+            }
+
+            if (orderItems.length < 1) {
+                alert('Product yang diinput masih kosong');
+                return;
+            }
+
+            var param = {
+                SalesOrderId: "@Model.SalesOrderId",
+                SalesOrderNumber: SoNumber,
+                SalesOrderDate: SalesOrderDate,
+                SalesOrderDueDate: DueDate,
+                SupplierId: Supplier,
+                Items: orderItems
+            }
+
+            console.log(param);
+
+            $(this).val('Harap tunggu...');
+
+            $.ajax({
+                url: '/SalesOrder/SaveSO',
+                type: "POST",
+                data: JSON.stringify(param),
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (d) {
+                    $('#submit').val('Simpan');
+                    alert('Data berhasil disimpan');
+               },
+                error: function () {
+                    alert('Terjadi kesalahan ,harap hubungi administrator.');
+                    $('#submit').val('Simpan');
+                }
+            });
+        });
+
+
+    </script>
+
+}

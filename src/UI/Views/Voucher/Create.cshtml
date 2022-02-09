@@ -1,0 +1,142 @@
+﻿@model UMApplication.Application.Vouchers.Commands.UpsertVoucher.UpsertVoucherCommand;
+
+@using (Html.BeginForm("Create", "Voucher", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-9">
+            <h2>Buat atau Ubah Voucher</h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Home")">Home</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Voucher")">Voucher</a>
+                </li>
+                <li class="active breadcrumb-item">
+                    <strong>Buat atau Ubah Voucher</strong>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox ">
+
+                    @Html.HiddenFor(model => model.VoucherId)
+
+                    <div class="ibox-content">
+                        <div class="form-group row">
+                            <div class="control-label col-md-2">Kode Voucher</div>
+
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.VoucherCode)
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="control-label col-md-2">Nominal</div>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.Nominal)
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="control-label col-md-2">Berlaku dari</div>
+                            <div class="col-md-10">
+                                <input type="text" id="ValidFromString" asp-for="ValidFromString" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="control-label col-md-2">Berlaku sampai</div>
+                            <div class="col-md-10">
+                                <input type="text" id="ValidToString" asp-for="ValidToString" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Index", "Voucher")'">Kembali</button>
+                                <input type="submit" value="Simpan" class="btn btn-primary" />
+
+                                <div>@ViewBag.Message</div>
+                                <div class="text-danger">@ViewBag.ErrorMessage</div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal validation -->
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="errorModalLabel">Message</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="color: dodgerblue; text-align: center;" id="form-info-content">
+                    <ul>
+                    </ul>
+                </div>
+                <div style="color: red; text-align: left;" id="form-error-content">
+                    <ul>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+    <environment names="Development,Staging,Production">
+        <script src="~/lib/jquery-ui/jquery-ui.js"></script>
+        <link rel="stylesheet" href="~/lib/jquery-ui/themes/base/jquery-ui.css">
+        <script src="~/lib/dataTables/datatables.min.js"></script>
+        <script src="~/lib/dataTables/dataTables.bootstrap4.min.js"></script>
+    </environment>
+
+    <script type="text/javascript">
+
+        $(function () {
+
+            $('#ValidFromString').datepicker({
+                dateFormat: 'dd/mm/yy'
+            });
+
+            $('#ValidToString').datepicker({
+                dateFormat: 'dd/mm/yy'
+            });
+        });
+
+        $(document).ready(function () {
+            console.log("@TempData["Message"]");
+            if ("@TempData["Error"]" == '') {
+            }
+            else {
+                displayErrorMessage("@TempData["Error"]");
+            }
+
+            if ("@TempData["Message"]" == '') {
+            }
+            else {
+                displayInfoMessage("@TempData["Message"]");
+            }
+        });
+
+    </script>
+
+}

@@ -1,0 +1,172 @@
+﻿@model IList<UMApplication.Application.V_StockSummary.Queries.StockSummaryDto>
+
+@{
+    ViewBag.Title = "Laporan Stock";
+}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-9">
+        <h2>Laporan Stock</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Home" )">Home</a>
+            </li>
+            <li class="active breadcrumb-item">
+                <strong>Laporan Stock</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox-content">
+
+                <div class="form-group row">
+                    <label class="control-label col-md-3">Total Stock :</label>
+                        <label class="control-label col-md-9">@ViewBag.TotalStock</label>
+                </div>
+
+                <div class="form-group row">
+                    <label class="control-label col-md-3">Grand Total :</label>
+                        <label class="control-label col-md-9">@ViewBag.GrandTotal</label>
+                </div>
+
+                <table id="grid" class="table table-striped table-bordered table-hover dataTables-example">
+                    <thead>
+                        <tr>
+                            <th>Kode</th>
+                            <th>Nama Barang</th>
+                            <th>Harga Beli</th>
+                            <th>Harga Jual</th>
+                            <th>Jumlah Stock</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null)
+                        {
+
+                            <tr>
+                                <td colspan="6" style="        text-align: center">There is no Data Available</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="center"> @Html.DisplayFor(modelItem => item.PLU)</td>
+                                    <td class="center"> @Html.DisplayFor(modelItem => item.ProductName)</td>
+                                    <td class="center"> @Html.DisplayFor(modelItem => item.HppString)</td>
+                                    <td class="center"> @Html.DisplayFor(modelItem => item.SellPriceString)</td>
+                                    <td class="center"> @Html.DisplayFor(modelItem => item.Quantity)</td>
+                                    <td class="center"> @Html.DisplayFor(modelItem => item.TotalString)</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="errorModalLabel">Message</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="color: dodgerblue; text-align: center;" id="rentMember-info-content">
+                    <ul>
+                    </ul>
+                </div>
+                <div style="color: red; text-align: left;" id="rentMember-error-content">
+                    <ul>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/lib/dataTables/datatables.min.css" />
+}
+
+@section Scripts {
+
+    <script src="~/lib/dataTables/datatables.min.js"></script>
+    <script src="~/lib/dataTables/dataTables.bootstrap4.min.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#grid').DataTable({
+                autoWidth: true,
+                pageLength: 25,
+                dom: '<"html5buttons"B>lTfgitp',
+                buttons: [
+                    {
+                        extend: 'copy', exportOptions: {
+                            columns: [0, 1, 2, 3, 4]
+                        }
+                    },
+                    {
+                        extend: 'excel', title: 'LaporanStock', exportOptions: {
+                            columns: [0, 1, 2, 3, 4]
+                        }
+                    },
+                    {
+                        extend: 'pdf', title: 'LaporanStock', exportOptions: {
+                            columns: [0, 1, 2, 3, 4]
+                        }
+                    },
+
+                    {
+                        extend: 'print',
+                        customize: function (win) {
+                            $(win.document.body).addClass('white-bg');
+                            $(win.document.body).css('font-size', '10px');
+
+                            $(win.document.body).find('table')
+                                .addClass('compact')
+                                .css('font-size', 'inherit');
+                        }, exportOptions: {
+                            columns: [0, 1, 2, 3, 4]
+                        }
+                    }
+                ]
+            });
+
+             if ("@TempData["Error"]" == '') {
+            }
+            else {
+                displayErrorMessage("@TempData["Error"]");
+            }
+
+            if ("@TempData["Message"]" == '') {
+            }
+            else {
+                displayInfoMessage("@TempData["Message"]");
+            }
+
+
+
+        });
+
+    </script>
+
+
+}
+
+

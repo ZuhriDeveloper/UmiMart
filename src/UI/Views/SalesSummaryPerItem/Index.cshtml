@@ -1,0 +1,213 @@
+﻿<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-9">
+        <h2>Laporan Penjualan Per Item</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Home" )">Home</a>
+            </li>
+            <li class="active breadcrumb-item">
+                <strong>Laporan Penjualan Per Item</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox ">
+                <div class="ibox-content">
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">Dari Tanggal (dd-mm-yyyy)</label>
+                        <div class="col-md-3">
+                            <input type="text" id="dateFrom" />
+                        </div>
+
+                        <label class="control-label col-md-3">Sampai Tanggal (dd-mm-yyyy)</label>
+                        <div class="col-md-3">
+                            <input type="text" id="dateTo" />
+                        </div>
+
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="control-label col-md-3">PLU / Nama Barang</label>
+                        <div class="col-md-9">
+                            <input type="text" id="txtFilter" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-2">
+                            <input type="button" id="btnView" value="Tampilkan" />
+                        </div>
+                        <div class="col-md-2">
+                            <a id="downloadLink" onclick="exportF(this)">Export to excel</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-lg-12">
+            <div class="ibox ">
+                <div class="ibox-content">
+
+                    <div id="salesList">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <environment names="Development,Staging,Production">
+        <link rel="stylesheet" href="~/lib/dataTables/datatables.min.css" />
+    </environment>
+}
+
+
+@section Scripts {
+
+    <environment names="Development,Staging,Production">
+        <script src="~/lib/jquery-ui/jquery-ui.js"></script>
+        <link rel="stylesheet" href="~/lib/jquery-ui/themes/base/jquery-ui.css">
+        <script src="~/lib/dataTables/datatables.min.js"></script>
+        <script src="~/lib/dataTables/dataTables.bootstrap4.min.js"></script>
+    </environment>
+
+    <script type="text/javascript">
+        var sales = [];
+
+        $(function () {
+
+            $('#dateFrom').datepicker({
+                dateFormat: 'dd-mm-yy'
+            });
+
+            $('#dateTo').datepicker({
+                dateFormat: 'dd-mm-yy'
+            });
+        });
+
+        $(document).ready(function () {
+            if ("@TempData["Error"]" == '') {
+            }
+            else {
+                displayErrorMessage("@TempData["Error"]");
+            }
+
+            if ("@TempData["Message"]" == '') {
+            }
+            else {
+                displayInfoMessage("@TempData["Message"]");
+            }
+
+        });
+
+        $('#btnView').click(function () {
+            var dtFrom = $('#dateFrom').val().trim();
+            var dtTo = $('#dateTo').val().trim();
+            var filter = $('#txtFilter').val().trim();
+            var newDtFrom = dtFrom.split("-").reverse().join("-");
+            var newDtTo = dtTo.split("-").reverse().join("-");
+            var baseurl = '@Context.Request.Scheme' + "://" + '@Context.Request.Host';
+            var url = baseurl + "/api/SalesSummaryPerItemApi?dateFrom=" + newDtFrom + "&dateTo=" + newDtTo + "&filter=" + filter;
+            console.log(url);
+            sales = [];
+
+            $.getJSON(url, null, function (data) {
+                $.each(data, function () {
+                    var p = this;
+                    $.each(p, function () {
+
+                        //items += "<option value='" + this.id + "'>" + this.nama + "</option>";
+                        sales.push({
+                            Tgl_Transaksi: this.tgl_Transaksi,
+                            Code: this.code,
+                            ProductId: this.productId,
+                            Name: this.name,
+                            Qty: this.qty,
+                            Sales: this.sales,
+                            Hpp: this.hpp,
+                            Tax: this.tax,
+                            SalesNet: this.salesNet,
+                            Margin: this.margin
+                        });
+                    });
+                    GeneratedItemsTable();
+                });
+            });
+        });
+
+        function GeneratedItemsTable() {
+            var grandTotalQty = 0;
+            var grandTotalHpp = 0;
+            var grandTotalSales = 0;
+            var grandTotalTax = 0;
+            var grandTotalSalesNet = 0;
+            var grandTotalMargin = 0;
+            console.log(sales);
+            if (sales.length > 0) {
+                var $table = $('<table id="salesTable" class="table table-striped table-bordered table-hover dataTables-example" />');
+                $table.append('<thead><tr><th>Tanggal Transaksi</th><th>PLU</th><th>Deskripsi</th><th>Qty</th><th>Sales</th><th>Hpp</th><th>Tax</th><th>Sales Net</th><th>Margin</th></tr></thead>');
+                var $tbody = $('<tbody/>');
+
+                $.each(sales, function (i, val) {
+                    var splittedDate = val.Tgl_Transaksi.split('-');
+                    var day = splittedDate[2];
+                    var newDay = day.substring(0, 2);
+                    var newDate = newDay + '-' + splittedDate[1] + '-' + splittedDate[0];
+                    grandTotalQty = grandTotalQty + val.Qty;
+                    grandTotalHpp = grandTotalHpp + val.Hpp;
+                    grandTotalSales = grandTotalSales + val.Sales;
+                    grandTotalTax = grandTotalTax + val.Tax;
+                    grandTotalSalesNet = grandTotalSalesNet + val.SalesNet;
+                    grandTotalMargin = grandTotalMargin + val.Margin;
+
+                    var $row = $('<tr/>');
+                    $row.append($('<td/>').html(newDate));
+                    $row.append($('<td/>').html(val.Code));
+                    $row.append($('<td/>').html(val.Name));
+                    $row.append($('<td style="text-align:right"/>').html(addCommas(val.Qty)));
+                    $row.append($('<td style="text-align:right"/>').html(addCommas(val.Sales)));
+                    $row.append($('<td style="text-align:right"/>').html(addCommas(val.Hpp)));
+                    $row.append($('<td style="text-align:right"/>').html(addCommas(val.Tax)));
+                    $row.append($('<td style="text-align:right"/>').html(addCommas(val.SalesNet)));
+                    $row.append($('<td style="text-align:right"/>').html(addCommas(val.Margin)));
+                    $tbody.append($row);
+                });
+                var $rowTotal = $('<tr/>');
+                $rowTotal.append($('<td colspan=3/>').html('Total'));
+                $rowTotal.append($('<td style="text-align:right;font-weight: bold"/>').html(addCommas(grandTotalQty)));
+                $rowTotal.append($('<td style="text-align:right;font-weight: bold"/>').html(addCommas(grandTotalSales)));
+                $rowTotal.append($('<td style="text-align:right;font-weight: bold"/>').html(addCommas(grandTotalHpp)));
+                $rowTotal.append($('<td style="text-align:right;font-weight: bold"/>').html(addCommas(grandTotalTax)));
+                $rowTotal.append($('<td style="text-align:right;font-weight: bold"/>').html(addCommas(grandTotalSalesNet)));
+                $rowTotal.append($('<td style="text-align:right;font-weight: bold"/>').html(addCommas(grandTotalMargin)));
+                $tbody.append($rowTotal);
+                $table.append($tbody);
+                $('#salesList').html($table);
+            }
+            else {
+                $("#salesList tr").remove();
+            }
+        }
+
+        function exportF(elem) {
+            var table = document.getElementById("salesTable");
+            var html = table.outerHTML;
+            var url = 'data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,' + escape(html); // Set your html table into url
+            elem.setAttribute("href", url);
+            elem.setAttribute("download", "LaporanPenjualanPerItem.xls"); // Choose the file name
+            return false;
+        }
+
+
+
+    </script>
+
+}

@@ -1,0 +1,142 @@
+﻿@model UMApplication.Application.Members.Commands.UpSertMember.UpSertMemberCommand;
+
+@using (Html.BeginForm("Create", "Member", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-lg-9">
+            <h2>Buat atau Ubah Member</h2>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Home")">Home</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a href="@Url.Action("Index", "Member")">Member</a>
+                </li>
+                <li class="active breadcrumb-item">
+                    <strong>Buat atau Ubah Member</strong>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="ibox ">
+
+                    @Html.HiddenFor(model => model.Id)
+
+                    <div class="ibox-content">
+                        <div class="form-group row">
+                            <div class="control-label col-md-2">Nama Lengkap</div>
+
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.FullName)
+                            </div>
+                        </div>
+                        @*<div class="form-group row">
+            @Html.LabelFor(model => model.CardNumber, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.CardNumber)
+            </div>
+        </div>*@
+                    <div class="form-group row">
+                        <div class="control-label col-md-2">Nomor Anggota</div>
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.MembershipNumber)
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="control-label col-md-2">Alamat</div>
+                        <div class="col-md-10">
+                            @Html.EditorFor(model => model.Address)
+                        </div>
+                    </div>
+                        <div class="form-group row">
+                            @Html.LabelFor(model => model.Plafon, htmlAttributes: new { @class = "control-label col-md-2" })
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.Plafon)
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="control-label col-md-2">Diskon Nominal</div>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.DiscountFlat)
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="control-label col-md-2">Diskon Rate(%)</div>
+                            <div class="col-md-10">
+                                @Html.EditorFor(model => model.DiscountRate)
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-offset-2 col-md-10">
+                                <button type="button" class="btn btn-warning" onclick="location.href='@Url.Action("Index", "Member")'">Kembali</button>
+                                <input type="submit" value="Simpan" class="btn btn-primary" />
+
+                                <div>@ViewBag.Message</div>
+                                <div class="text-danger">@ViewBag.ErrorMessage</div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal validation -->
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="errorModalLabel">Message</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="color: dodgerblue; text-align: center;" id="rentMember-info-content">
+                    <ul>
+                    </ul>
+                </div>
+                <div style="color: red; text-align: left;" id="rentMember-error-content">
+                    <ul>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+@section Scripts {
+    <script src="~/js/Application/Member/MemberCreate.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if ("@TempData["Error"]" == '') {
+            }
+            else {
+                displayErrorMessage("@TempData["Error"]");
+            }
+
+            if ("@TempData["Message"]" == '') {
+            }
+            else {
+                displayInfoMessage("@TempData["Message"]");
+            }
+        });
+
+    </script>
+
+}

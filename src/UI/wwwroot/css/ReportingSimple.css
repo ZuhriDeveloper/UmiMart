@@ -1,0 +1,65 @@
+﻿body {
+    margin: 0px;
+    font-family: 'Segoe UI', Arial;
+}
+
+.invoice-head {
+    clear: both;
+    display: block;
+    padding : 5px;
+}
+
+.invoice-title {
+    background-color: navy;
+    color: white;
+    font-size: 20px;
+    width: 100%;
+}
+
+.invoice-to {
+    float: left;
+}
+
+.invoice-details {
+    float: right;
+}
+table.tableBorder {
+    clear: both;
+    border: 1px solid darkgray;
+    border-collapse: collapse;
+    margin: auto;
+}
+
+table.table1 {
+    clear: both;
+    border: none;
+	background-color: none;
+    border-collapse: collapse;
+    margin: auto;
+}
+
+th.thCustom {
+    background-color: navy;
+    color: white;
+	border: 1px solid darkgray;
+	padding: 5px;
+}
+
+th.thCustomNone {
+    
+}
+td.tdCustom
+{
+	border: 1px solid darkgray;
+	padding: 5px;
+}
+
+.numeric-cell {
+    text-align: right;
+}
+
+.clearfix::after {
+    content: "";
+    clear: both;
+    display: table;
+}

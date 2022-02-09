@@ -1,0 +1,176 @@
+﻿@model IList<UMApplication.Application.Members.Queries.GetMembersList.MemberLookupDto>
+
+@{
+    ViewBag.Title = "Daftar Member";
+}
+
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-lg-9">
+        <h2>Member</h2>
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="@Url.Action("Index", "Home" )">Home</a>
+            </li>
+            <li class="active breadcrumb-item">
+                <strong>Member</strong>
+            </li>
+        </ol>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox-title">
+                <button type="button" class="btn btn-primary" onclick="location.href='@Url.Action("Create", "Member", new { id = 0 })'"><i class="fa fa-plus"></i> Buat Member Baru</button>
+            </div>
+
+            <div class="ibox-content">
+
+                <table id="grid" class="table table-striped table-bordered table-hover dataTables-example">
+                    <thead>
+                        <tr>
+                            <th>Nama Lengkap</th>
+                            @*<th>Card Number</th>*@
+                            <th>Nomor Anggota</th>
+                            <th>Alamat</th>
+                            <th>Plafon</th>
+                            <th>Diskon Nominal</th>
+                            <th>Diskon Rate(%)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model == null)
+                        {
+
+                            <tr>
+                                <td colspan="6" style="        text-align: center">There is no Data Available</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var item in Model)
+                            {
+                    <tr>
+                        <td class="center"> @Html.DisplayFor(modelItem => item.FullName)</td>
+                        @*<td class="center"> @Html.DisplayFor(modelItem => item.CardNumber)</td>*@
+                        <td class="center"> @Html.DisplayFor(modelItem => item.MembershipNumber)</td>
+                        <td class="center"> @Html.DisplayFor(modelItem => item.Address)</td>
+                        <td class="center"> @Html.DisplayFor(modelItem => item.Plafon)</td>
+                        <td class="center"> @Html.DisplayFor(modelItem => item.DiscountFlat)</td>
+                        <td class="center"> @Html.DisplayFor(modelItem => item.DiscountRate)</td>
+                        <td class="" style="width:20%">
+                            @Html.ActionLink(" Ubah", "Create", new { id = item.Id }, new { @class = "btn btn-info fa fa-paste" })
+
+                            @Html.ActionLink(" Hapus", "Delete", new { id = item.Id }, new { @class = "btn btn-danger fa fa-trash", onclick = "return confirm('Anda yakin akan menghapus member ini?');" })
+                        </td>
+                    </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="errorModalLabel">Message</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="color: dodgerblue; text-align: center;" id="rentMember-info-content">
+                    <ul>
+                    </ul>
+                </div>
+                <div style="color: red; text-align: left;" id="rentMember-error-content">
+                    <ul>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <environment names="Development,Staging,Production">
+        <link rel="stylesheet" href="~/lib/dataTables/datatables.min.css" />
+    </environment>
+}
+
+@section Scripts {
+    <environment names="Development,Staging,Production">
+        <script src="~/lib/dataTables/datatables.min.js"></script>
+        <script src="~/lib/dataTables/dataTables.bootstrap4.min.js"></script>
+    </environment>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            if ("@TempData["Error"]" == '') {
+            }
+            else {
+                displayErrorMessage("@TempData["Error"]");
+            }
+
+            if ("@TempData["Message"]" == '') {
+            }
+            else {
+                displayInfoMessage("@TempData["Message"]");
+            }
+
+            $('#grid').DataTable({
+                autoWidth: true,
+                pageLength: 25,
+                dom: '<"html5buttons"B>lTfgitp',
+                buttons: [
+                    {
+                        extend: 'copy', exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5]
+                        }
+                    },
+                    {
+                        extend: 'excel', title: 'ListMember', exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5]
+                        }
+                    },
+                    {
+                        extend: 'pdf', title: 'ListMember', exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5]
+                        }
+                    },
+
+                    {
+                        extend: 'print',
+                        customize: function (win) {
+                            $(win.document.body).addClass('white-bg');
+                            $(win.document.body).css('font-size', '10px');
+
+                            $(win.document.body).find('table')
+                                .addClass('compact')
+                                .css('font-size', 'inherit');
+                        }, exportOptions: {
+                            columns: [0, 1, 2, 3, 4, 5]
+                        }
+                    }
+                ]
+
+            });
+
+        });
+
+    </script>
+
+
+}
+
+
